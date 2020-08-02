@@ -2,7 +2,9 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 A wide range of custom functions for YOLOv4, YOLOv4-tiny, YOLOv3, and YOLOv3-tiny implemented in TensorFlow, TFLite and TensorRT.
-<p align="center"><img src="data/helpers/demo.gif"\></p>
+
+Demo of Object Counter Custom Function in Action!
+<p align="center"><img src="data/helpers/object_counter.gif"\></p>
 
 ## Getting Started
 ### Conda (Recommended)
