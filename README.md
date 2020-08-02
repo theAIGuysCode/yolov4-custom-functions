@@ -1,4 +1,4 @@
-# YOLOv4 Custom Functions
+# yolov4-custom-functions
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 A wide range of custom functions for YOLOv4, YOLOv4-tiny, YOLOv3, and YOLOv3-tiny implemented in TensorFlow, TFLite and TensorRT.
@@ -42,6 +42,8 @@ If you want to use yolov4-tiny.weights, a smaller model that is faster at runnin
 ## Using Custom Trained YOLOv4 Weights
 <strong>Learn How To Train Custom YOLOv4 Weights here: https://www.youtube.com/watch?v=mmj3nxGT2YQ </strong>
 
+<strong>Watch me Walk-Through using Custom Model in TensorFlow :https://www.youtube.com/watch?v=nOIVxi5yurE </strong>
+
 USE MY LICENSE PLATE TRAINED CUSTOM WEIGHTS: https://drive.google.com/file/d/1EUPtbtdF0bjRtNjGv436vDY28EN5DXDH/view?usp=sharing
 
 Copy and paste your custom .weights file into the 'data' folder and copy and paste your custom .names into the 'data/classes/' folder.
@@ -59,20 +61,8 @@ To implement YOLOv4 using TensorFlow, first we convert the .weights into the cor
 ## yolov4
 python save_model.py --weights ./data/yolov4.weights --output ./checkpoints/yolov4-416 --input_size 416 --model yolov4 
 
-# yolov4-tiny
-python save_model.py --weights ./data/yolov4-tiny.weights --output ./checkpoints/yolov4-tiny-416 --input_size 416 --model yolov4 --tiny
-
-# custom yolov4
-python save_model.py --weights ./data/custom.weights --output ./checkpoints/custom-416 --input_size 416 --model yolov4 
-
 # Run yolov4 tensorflow model
 python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/kite.jpg
-
-# Run yolov4-tiny tensorflow model
-python detect.py --weights ./checkpoints/yolov4-tiny-416 --size 416 --model yolov4 --images ./data/images/kite.jpg --tiny
-
-# Run custom yolov4 tensorflow model
-python detect.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --images ./data/images/car.jpg
 
 # Run yolov4 on video
 python detect_video.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --video ./data/video/video.mp4 --output ./detections/results.avi
@@ -89,12 +79,32 @@ You can find the outputted image(s) showing the detections saved within the 'det
 #### Pre-trained YOLOv4 Model Example
 <p align="center"><img src="data/helpers/result.png" width="640"\></p>
 
-#### Custom YOLOv4 Model Example (see video link above to train this model)
-<p align="center"><img src="data/helpers/custom_result.png" width="640"\></p>
-
 ### Result Video
 Video saves wherever you point --output flag to. If you don't set the flag then your video will not be saved with detections on it.
 <p align="center"><img src="data/helpers/demo.gif"\></p>
+
+## YOLOv4-Tiny using TensorFlow
+The following commands will allow you to run yolov4-tiny model.
+```
+# yolov4-tiny
+python save_model.py --weights ./data/yolov4-tiny.weights --output ./checkpoints/yolov4-tiny-416 --input_size 416 --model yolov4 --tiny
+
+# Run yolov4-tiny tensorflow model
+python detect.py --weights ./checkpoints/yolov4-tiny-416 --size 416 --model yolov4 --images ./data/images/kite.jpg --tiny
+```
+
+## Custom YOLOv4 Using TensorFlow
+The following commands will allow you to run your custom yolov4 model. (video and webcam commands work as well)
+```
+# custom yolov4
+python save_model.py --weights ./data/custom.weights --output ./checkpoints/custom-416 --input_size 416 --model yolov4 
+
+# Run custom yolov4 tensorflow model
+python detect.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --images ./data/images/car.jpg
+```
+
+#### Custom YOLOv4 Model Example (see video link above to train this model)
+<p align="center"><img src="data/helpers/custom_result.png" width="640"\></p>
 
 ## YOLOv4 Using TensorFlow Lite (.tflite model)
 Can also implement YOLOv4 using TensorFlow Lite. TensorFlow Lite is a much smaller model and perfect for mobile or edge devices (raspberry pi, etc).
@@ -173,6 +183,12 @@ detect.py:
     (default: 0.45)
   --score: confidence threshold
     (default: 0.25)
+  --count: count objects within images
+    (default: False)
+  --dont_show: dont show image output
+    (default: False)
+  --info: print info on detections
+    (default: False)
     
 detect_video.py:
   --video: path to input video (use 0 for webcam)
@@ -195,6 +211,12 @@ detect_video.py:
     (default: 0.45)
   --score: confidence threshold
     (default: 0.25)
+  --count: count objects within video
+    (default: False)
+  --dont_show: dont show video output
+    (default: False)
+  --info: print info on detections
+    (default: False)
 ```
 
 ### References  
