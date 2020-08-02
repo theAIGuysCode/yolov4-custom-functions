@@ -134,7 +134,7 @@ Running the above command will count the total number of objects detected and ou
 <p align="center"><img src="data/helpers/total_count.png" width="640"\></p>
 
 #### Count Objects Per Class
-To count the number of objects for each individual class of your object detector you need to add the custom flag "--count" as well as change one line in the detect.py or detect_video.py script. By default the count_objects function has a parameter called <strong>by_class</strong> parameter that is set to False. If you change this parameter to <strong>True</strong> it will count per class instead.
+To count the number of objects for each individual class of your object detector you need to add the custom flag "--count" as well as change one line in the detect.py or detect_video.py script. By default the count_objects function has a parameter called <strong>by_class</strong> that is set to False. If you change this parameter to <strong>True</strong> it will count per class instead.
 
 To count per class make detect.py or detect_video.py look like this:
 <p align="center"><img src="data/helpers/by_class_config.PNG" width="640"\></p>
