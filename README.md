@@ -155,7 +155,7 @@ Running the above command will count the number of objects detected per class an
 I have created a custom flag called <strong>INFO</strong> that can be added to any detect.py or detect_video.py commands in order to print detailed information about each detection made by the object detector. To print the detailed information to your command prompt just add the flag "--info" to any of your commands. The information on each detection includes the class, confidence in the detection and the bounding box coordinates of the detection in xmin, ymin, xmax, ymax format.
 
 If you want to edit what information gets printed you can edit the <strong>draw_bbox</strong> function found within the [core/utils.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/utils.py) file. The line that prints the information looks as follows:
-<p align="center"><img src="data/helpers/info_details.PNG" height="75"\></p>
+<p align="center"><img src="data/helpers/info_details.PNG" height="50"\></p>
 
 Example of info field added to command:
 ```
