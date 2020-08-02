@@ -8,8 +8,9 @@ DISCLAIMER: This repository is very similar to my repository: [tensorflow-yolov4
 Demo of Object Counter Custom Function in Action!
 <p align="center"><img src="data/helpers/object_counter.gif"\></p>
 
-### Currently Supported Custom Functions and Flags
+## Currently Supported Custom Functions and Flags
 * [x] [Counting Objects (total objects and per class)](#counting)
+* [x] [Print Info About Each Detection (class, confidence, bounding box coordinates)](#info)
 
 
 ## Getting Started
@@ -116,6 +117,7 @@ python detect.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --
 Here is how to use all the currently supported custom functions and flags that I have created.
 
 <a name="counting"/>
+
 ### Counting Objects (total objects or per class)
 I have created a custom function within the file [core/functions.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/functions.py) that can be used to count and keep track of the number of objects detected at a given moment within each image or video. It can be used to count total objects found or can count number of objects detected per class.
 
@@ -142,7 +144,24 @@ python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --
 Running the above command will count the number of objects detected per class and output it to your command prompt or shell as well as on the saved detection as so:
 <p align="center"><img src="data/helpers/perclass_count.png" width="640"\></p>
 
-You can add the --count flag to detect_video.py commands as well!
+<strong>Note:</strong> You can add the --count flag to detect_video.py commands as well!
+
+<a name="info"/>
+
+### Print Detailed Info About Each Detection (class, confidence, bounding box coordinates)
+I have created a custom flag called <strong>INFO</strong> that can be added to any detect.py or detect_video.py commands in order to print detailed information about each detection made by the object detector. To print the detailed information to your command prompt just add the flag "--info" to any of your commands. The information on each detection includes the class, confidence in the detection and the bounding box coordinates of the detection in xmin, ymin, xmax, ymax format.
+
+If you want to edit what information gets printed you can edit the <strong>draw_bbox</strong> function found within the [core/utils.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/utils.py) file. The line that prints the information looks as follows:
+<p align="center"><img src="data/helpers/info_details.png" width="640"\></p>
+
+Example of info field added to command:
+```
+python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --info
+```
+Resulting output within your shell or terminal:
+<p align="center"><img src="data/helpers/info_output.png" width="640"\></p>
+
+<strong>Note:</strong> You can add the --info flag to detect_video.py commands as well!
 
 ## YOLOv4 Using TensorFlow Lite (.tflite model)
 Can also implement YOLOv4 using TensorFlow Lite. TensorFlow Lite is a much smaller model and perfect for mobile or edge devices (raspberry pi, etc).
