@@ -97,7 +97,7 @@ def main(_argv):
 
         if FLAGS.count:
             # count objects found
-            counted_classes = count_objects(pred_bbox, False)
+            counted_classes = count_objects(pred_bbox, by_class = False)
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
