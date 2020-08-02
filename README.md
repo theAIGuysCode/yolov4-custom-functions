@@ -13,6 +13,7 @@ Demo of Object Counter Custom Function in Action!
 * [x] [Print Info About Each Detection (class, confidence, bounding box coordinates)](#info)
 * [ ] [TODO: Crop Detections and Save as New Image]
 * [ ] [TODO: Apply Tesseract OCR to Detections to Extract Text]
+
 If there is a custom function you want to see created then create an issue in the issues tab and suggest it! If enough people suggest the same custom function I will add it quickly!
 
 ## Getting Started
@@ -154,14 +155,14 @@ Running the above command will count the number of objects detected per class an
 I have created a custom flag called <strong>INFO</strong> that can be added to any detect.py or detect_video.py commands in order to print detailed information about each detection made by the object detector. To print the detailed information to your command prompt just add the flag "--info" to any of your commands. The information on each detection includes the class, confidence in the detection and the bounding box coordinates of the detection in xmin, ymin, xmax, ymax format.
 
 If you want to edit what information gets printed you can edit the <strong>draw_bbox</strong> function found within the [core/utils.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/utils.py) file. The line that prints the information looks as follows:
-<p align="center"><img src="data/helpers/info_details.PNG" width="640"\></p>
+<p align="center"><img src="data/helpers/info_details.PNG" height="150"\></p>
 
 Example of info field added to command:
 ```
 python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --info
 ```
 Resulting output within your shell or terminal:
-<p align="center"><img src="data/helpers/info_output.PNG" width="640"\></p>
+<p align="center"><img src="data/helpers/info_output.PNG" height="150"\></p>
 
 <strong>Note:</strong> You can add the --info flag to detect_video.py commands as well!
 
