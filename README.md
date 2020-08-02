@@ -3,8 +3,14 @@
 
 A wide range of custom functions for YOLOv4, YOLOv4-tiny, YOLOv3, and YOLOv3-tiny implemented in TensorFlow, TFLite and TensorRT.
 
+DISCLAIMER: This repository is very similar to my repository: [tensorflow-yolov4-tflite](https://github.com/theAIGuysCode/tensorflow-yolov4-tflite). I created this repository to explore coding custom functions to be implemented with YOLOv4, and they may worsen the overal speed of the application and make it not optimized in respect to time complexity. So if you want to run the most optimal YOLOv4 code with TensorFlow than head over to my other repository. This one is to explore cool customizations and applications that can be created using YOLOv4!
+
 Demo of Object Counter Custom Function in Action!
 <p align="center"><img src="data/helpers/object_counter.gif"\></p>
+
+### Currently Supported Custom Functions and Flags
+* [x] [Counting Objects (total objects and per class)](#counting)
+
 
 ## Getting Started
 ### Conda (Recommended)
@@ -105,6 +111,38 @@ python detect.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --
 
 #### Custom YOLOv4 Model Example (see video link above to train this model)
 <p align="center"><img src="data/helpers/custom_result.png" width="640"\></p>
+
+## Custom Functions and Flags
+Here is how to use all the currently supported custom functions and flags that I have created.
+
+<a name="counting"/>
+### Counting Objects (total objects or per class)
+I have created a custom function within the file [core/functions.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/functions.py) that can be used to count and keep track of the number of objects detected at a given moment within each image or video. It can be used to count total objects found or can count number of objects detected per class.
+
+#### Count Total Objects
+To count total objects all that is needed is to add the custom flag "--count" to your detect.py or detect_video.py command.
+```
+# Run yolov4 model while counting total objects detected
+python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --count
+```
+Running the above command will count the total number of objects detected and output it to your command prompt or shell as well as on the saved detection as so:
+<p align="center"><img src="data/helpers/total_count.png" width="640"\></p>
+
+#### Count Objects Per Class
+To count the number of objects for each individual class of your object detector you need to add the custom flag "--count" as well as change one line in the detect.py or detect_video.py script. By default the count_objects function has a parameter called <strong>by_class</strong> parameter that is set to False. If you change this parameter to <strong>True</strong> it will count per class instead.
+
+To count per class make detect.py or detect_video.py look like this:
+<p align="center"><img src="data/helpers/by_class_config.png" width="640"\></p>
+
+Then run the same command as above:
+```
+# Run yolov4 model while counting objects per class
+python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --count
+```
+Running the above command will count the number of objects detected per class and output it to your command prompt or shell as well as on the saved detection as so:
+<p align="center"><img src="data/helpers/perclass_count.png" width="640"\></p>
+
+You can add the --count flag to detect_video.py commands as well!
 
 ## YOLOv4 Using TensorFlow Lite (.tflite model)
 Can also implement YOLOv4 using TensorFlow Lite. TensorFlow Lite is a much smaller model and perfect for mobile or edge devices (raspberry pi, etc).
