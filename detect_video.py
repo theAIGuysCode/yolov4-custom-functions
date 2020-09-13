@@ -28,7 +28,7 @@ flags.DEFINE_string('video', './data/video/video.mp4', 'path to input video or s
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_float('iou', 0.45, 'iou threshold')
-flags.DEFINE_float('score', 0.25, 'score threshold')
+flags.DEFINE_float('score', 0.50, 'score threshold')
 flags.DEFINE_boolean('count', False, 'count objects within video')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'print info on detections')
@@ -121,6 +121,15 @@ def main(_argv):
 
         pred_bbox = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
 
+        # read in all class names from config
+        class_names = utils.read_class_names(cfg.YOLO.CLASSES)
+
+        # by default allow all classes in .names file
+        allowed_classes = list(class_names.values())
+        
+        # custom allowed classes (uncomment line below to allow detections for only people)
+        #allowed_classes = ['person']
+
         # if crop flag is enabled, crop each detection and save it as new image
         if FLAGS.crop:
             crop_rate = 150 # capture images every so many frames (ex. crop photos every 150 frames)
@@ -135,19 +144,19 @@ def main(_argv):
                     os.mkdir(final_path)
                 except FileExistsError:
                     pass          
-                crop_objects(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), pred_bbox, final_path)
+                crop_objects(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), pred_bbox, final_path, allowed_classes)
             else:
                 pass
 
         if FLAGS.count:
             # count objects found
-            counted_classes = count_objects(pred_bbox, by_class = False)
+            counted_classes = count_objects(pred_bbox, by_class = False, allowed_classes=allowed_classes)
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
-            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, counted_classes)
+            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes)
         else:
-            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info)
+            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, allowed_classes=allowed_classes)
         
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)

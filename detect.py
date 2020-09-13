@@ -100,6 +100,15 @@ def main(_argv):
         # hold all detection data in one variable
         pred_bbox = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
 
+        # read in all class names from config
+        class_names = utils.read_class_names(cfg.YOLO.CLASSES)
+
+        # by default allow all classes in .names file
+        allowed_classes = list(class_names.values())
+        
+        # custom allowed classes (uncomment line below to allow detections for only people)
+        #allowed_classes = ['person']
+
         # if crop flag is enabled, crop each detection and save it as new image
         if FLAGS.crop:
             crop_path = os.path.join(os.getcwd(), 'detections', 'crop', image_name)
@@ -107,17 +116,17 @@ def main(_argv):
                 os.mkdir(crop_path)
             except FileExistsError:
                 pass
-            crop_objects(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB), pred_bbox, crop_path)
+            crop_objects(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB), pred_bbox, crop_path, allowed_classes)
 
         if FLAGS.count:
             # count objects found
-            counted_classes = count_objects(pred_bbox, by_class = False)
+            counted_classes = count_objects(pred_bbox, by_class = False, allowed_classes=allowed_classes)
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes)
         else:
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, allowed_classes=allowed_classes)
         
         image = Image.fromarray(image.astype(np.uint8))
         if not FLAGS.dont_show:
