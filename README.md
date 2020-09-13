@@ -11,7 +11,7 @@ DISCLAIMER: This repository is very similar to my repository: [tensorflow-yolov4
 ## Currently Supported Custom Functions and Flags
 * [x] [Counting Objects (total objects and per class)](#counting)
 * [x] [Print Info About Each Detection (class, confidence, bounding box coordinates)](#info)
-* [ ] [TODO: Crop Detections and Save as New Image]
+* [x] [Crop Detections and Save as New Image](#crop)
 * [ ] [TODO: Apply Tesseract OCR to Detections to Extract Text]
 
 If there is a custom function you want to see created then create an issue in the issues tab and suggest it! If enough people suggest the same custom function I will add it quickly!
@@ -152,12 +152,12 @@ Running the above command will count the number of objects detected per class an
 <a name="info"/>
 
 ### Print Detailed Info About Each Detection (class, confidence, bounding box coordinates)
-I have created a custom flag called <strong>INFO</strong> that can be added to any detect.py or detect_video.py commands in order to print detailed information about each detection made by the object detector. To print the detailed information to your command prompt just add the flag "--info" to any of your commands. The information on each detection includes the class, confidence in the detection and the bounding box coordinates of the detection in xmin, ymin, xmax, ymax format.
+I have created a custom flag called <strong>INFO</strong> that can be added to any detect.py or detect_video.py commands in order to print detailed information about each detection made by the object detector. To print the detailed information to your command prompt just add the flag `--info` to any of your commands. The information on each detection includes the class, confidence in the detection and the bounding box coordinates of the detection in xmin, ymin, xmax, ymax format.
 
 If you want to edit what information gets printed you can edit the <strong>draw_bbox</strong> function found within the [core/utils.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/utils.py) file. The line that prints the information looks as follows:
 <p align="center"><img src="data/helpers/info_details.PNG" height="50"\></p>
 
-Example of info field added to command:
+Example of info flag added to command:
 ```
 python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --info
 ```
@@ -165,6 +165,18 @@ Resulting output within your shell or terminal:
 <p align="center"><img src="data/helpers/info_output.PNG" height="100"\></p>
 
 <strong>Note:</strong> You can add the --info flag to detect_video.py commands as well!
+
+<a name="crop"/>
+
+### Crop Detections and Save Them as New Images
+I have created a custom flag called <strong>CROP</strong> that can be added to any detect.py or detect_video.py commands in order to crop the YOLOv4 detections and save them each as their own new image. To crop detections all you need to do is add the `--crop` flag to any command. The resulting cropped images will be saved within the <strong>detections/crop/<strong> folder.
+  
+ Example of crop flag added to command:
+```
+python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --images ./data/images/dog.jpg --crop
+```
+ Here is an example of one of the resulting cropped detections from the above command.
+ <p align="center"><img src="data/helpers/crop_example.png" height="250"\></p>
 
 ## YOLOv4 Using TensorFlow Lite (.tflite model)
 Can also implement YOLOv4 using TensorFlow Lite. TensorFlow Lite is a much smaller model and perfect for mobile or edge devices (raspberry pi, etc).
@@ -249,6 +261,8 @@ detect.py:
     (default: False)
   --info: print info on detections
     (default: False)
+  --crop: crop detections and save as new images
+    (default: False)
     
 detect_video.py:
   --video: path to input video (use 0 for webcam)
@@ -276,6 +290,8 @@ detect_video.py:
   --dont_show: dont show video output
     (default: False)
   --info: print info on detections
+    (default: False)
+  --crop: crop detections and save as new images
     (default: False)
 ```
 
