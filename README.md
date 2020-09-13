@@ -169,7 +169,7 @@ Resulting output within your shell or terminal:
 <a name="crop"/>
 
 ### Crop Detections and Save Them as New Images
-I have created a custom flag called <strong>CROP</strong> that can be added to any detect.py or detect_video.py commands in order to crop the YOLOv4 detections and save them each as their own new image. To crop detections all you need to do is add the `--crop` flag to any command. The resulting cropped images will be saved within the <strong>detections/crop/<strong> folder.
+I have created a custom flag called <strong>CROP</strong> that can be added to any detect.py or detect_video.py commands in order to crop the YOLOv4 detections and save them each as their own new image. To crop detections all you need to do is add the `--crop` flag to any command. The resulting cropped images will be saved within the <strong>detections/crop/</strong> folder.
   
  Example of crop flag added to command:
 ```
