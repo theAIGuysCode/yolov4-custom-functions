@@ -31,6 +31,8 @@ flags.DEFINE_boolean('count', False, 'count objects within images')
 flags.DEFINE_boolean('dont_show', False, 'dont show image output')
 flags.DEFINE_boolean('info', False, 'print info on detections')
 flags.DEFINE_boolean('crop', False, 'crop detections from images')
+flags.DEFINE_boolean('ocr', False, 'perform generic OCR on detection regions')
+flags.DEFINE_boolean('plate', False, 'perform license plate recognition')
 
 def main(_argv):
     config = ConfigProto()
@@ -118,15 +120,20 @@ def main(_argv):
                 pass
             crop_objects(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB), pred_bbox, crop_path, allowed_classes)
 
+        # if ocr flag is enabled, perform general text extraction using Tesseract OCR on object detection bounding box
+        if FLAGS.ocr:
+            ocr(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB), pred_bbox)
+
+        # if count flag is enabled, perform counting of objects
         if FLAGS.count:
             # count objects found
             counted_classes = count_objects(pred_bbox, by_class = False, allowed_classes=allowed_classes)
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes, read_plate = FLAGS.plate)
         else:
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, allowed_classes=allowed_classes)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, allowed_classes=allowed_classes, read_plate = FLAGS.plate)
         
         image = Image.fromarray(image.astype(np.uint8))
         if not FLAGS.dont_show:

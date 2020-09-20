@@ -33,6 +33,7 @@ flags.DEFINE_boolean('count', False, 'count objects within video')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'print info on detections')
 flags.DEFINE_boolean('crop', False, 'crop detections from images')
+flags.DEFINE_boolean('plate', False, 'perform license plate recognition')
 
 def main(_argv):
     config = ConfigProto()
@@ -154,9 +155,9 @@ def main(_argv):
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
-            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes)
+            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes, read_plate=FLAGS.plate)
         else:
-            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, allowed_classes=allowed_classes)
+            image = utils.draw_bbox(frame, pred_bbox, FLAGS.info, allowed_classes=allowed_classes, read_plate=FLAGS.plate)
         
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)

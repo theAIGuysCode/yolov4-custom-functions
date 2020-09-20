@@ -6,3 +6,4 @@ absl-py
 matplotlib
 easydict
 pillow
+pytesseract
