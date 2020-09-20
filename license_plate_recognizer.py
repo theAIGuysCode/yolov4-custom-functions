@@ -4,6 +4,10 @@ import cv2
 import os
 import numpy as np
 
+# If you don't have tesseract executable in your PATH, include the following:
+# pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
+# Example tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
+
 # point to license plate image (works well with custom crop function)
 gray = cv2.imread("./detections/crop/car3/license_plate_.png", 0)
 gray = cv2.resize( gray, None, fx = 3, fy = 3, interpolation = cv2.INTER_CUBIC)
