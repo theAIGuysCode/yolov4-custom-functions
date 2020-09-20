@@ -182,18 +182,20 @@ python detect.py --weights ./checkpoints/yolov4-416 --size 416 --model yolov4 --
  
 <a name="license"/>
 
-### License Plate Recognition Using Tesseract OCR
+## License Plate Recognition Using Tesseract OCR
 I have created a custom function to feed Tesseract OCR the bounding box regions of license plates found by my custom YOLOv4 model in order to read and extract the license plate numbers. Thorough preprocessing is done on the license plate in order to correctly extract the license plate number from the image. The function that is in charge of doing the preprocessing and text extraction is called <strong>recognize_plate</strong> and can be found in the file [core/utils.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/core/utils.py).
 
 <strong>Disclaimer: In order to run tesseract OCR you must first download the binary files and set them up on your local machine. Please do so before proceeding or commands will not run as expected!</strong>
 
 Official Tesseract OCR Github Repo: [tesseract-ocr/tessdoc](https://github.com/tesseract-ocr/tessdoc)
+
 Great Article for How To Install Tesseract on Mac or Linux Machines: [PyImageSearch Article](https://www.pyimagesearch.com/2017/07/03/installing-tesseract-for-ocr/)
+
 For Windows I recommend: [Windows Install](https://github.com/UB-Mannheim/tesseract/wiki)
 
 Once you have Tesseract properly installed you can move onwards. If you don't have a trained YOLOv4 model to detect license plates feel free to use one that I have trained. It is not perfect but it works well. [Download license plate detector model and learn how to save and run it with TensorFlow here](#custom)
 
-#### Running License Plate Recognition on Images (video example below)
+### Running License Plate Recognition on Images (video example below)
 The license plate recognition works wonders on images. All you need to do is add the `--plate` flag on top of the command to run the custom YOLOv4 model.
 
 Try it out on this image in the repository!
@@ -202,13 +204,13 @@ Try it out on this image in the repository!
 python detect.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --images ./data/images/car2.jpg --plate
 ```
 
-#### Resulting Image Example
+### Resulting Image Example
 The output from the above command should print any license plate numbers found to your command terminal as well as output and save the following image to the `detections` folder.
 <p align="center"><img src="data/helpers/lpr_demo.png" width="640"\></p>
 
 You should be able to see the license plate number printed on the screen above the bounding box found by YOLOv4.
 
-#### Behind the Scenes
+### Behind the Scenes
 This section will highlight the steps I took in order to implement the License Plate Recognition with YOLOv4 and potential areas to be worked on further.
 
 This demo will be showing the step-by-step workflow on the following original image.
@@ -237,7 +239,7 @@ The individual characters of the license plate number are now the only regions o
 
 Each letter or number is then just appended together into a string and at the end you get the full license plate that is recognized! BOOM!
 
-#### Running License Plate Recognition on Video
+### Running License Plate Recognition on Video
 Running the license plate recognition straight on video at the same time that YOLOv4 object detections causes a few issues. Tesseract OCR is fairly expensive in terms of time complexity and slows down the processing of the video to a snails pace. It can still be accomplished by adding the `--plate` command line flag to any detect_video.py commands.
 
 However, I believe the best route to go is to run video detections without the plate flag and instead run them with `--crop` flag which crops the objects found on screen and saves them as new images. [See how it works here](#crop) Once the video is done processing at a higher FPS all the license plate images will be cropped and saved within [detections/crop](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/detections/crop/) folder. I have added an easy script within the repository called [license_plate_recognizer.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/license_plate_recognizer.py) that you can run in order to recognize license plates. Plus this allows you to easily customize the script to further enhance any recognitions. I will be working on linking this functionality automatically in future commits to the repository.
@@ -256,7 +258,7 @@ Now play around with [license_plate_recognizer.py](https://github.com/theAIGuysC
 
 <a name="ocr"/>
 
-### Running Tesseract OCR on any Detections
+## Running Tesseract OCR on any Detections
 I have also implemented a generic use of Tesseract OCR with YOLOv4. By enabling the flag `--ocr` with any detect.py image command you can search detections for text and extract what is found. Generic preprocessing is applied on the subimage that makes up the inside of the detection bounding box. However, so many lighting or color issues require advanced preprocessing so this function is by no means perfect. You will also need to install tesseract on your local machine prior to running this flag (see links and suggestions in an above section)
 
 Example command (note this image doesn't have text so will not output anything, just meant to show how command is structured):
