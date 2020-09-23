@@ -24,7 +24,10 @@ dilation = cv2.dilate(thresh, rect_kern, iterations = 1)
 #cv2.imshow("dilation", dilation)
 #cv2.waitKey(0)
 # find contours
-contours, hierarchy = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+try:
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+except:
+    ret_img, contours, hierarchy = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 sorted_contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
 
 # create copy of image
