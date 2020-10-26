@@ -222,7 +222,7 @@ First step of the process is taking the bounding box coordinates from YOLOv4 and
 Then we convert the image to grayscale and apply a small Gaussian blur to smooth it out.
 <p align="center"><img src="data/helpers/gray.png" width="400"\></p>
 
-Following this, the image is thresholded to white text with black background and has Otsu's method also applied. This white tect on black background helps to find contours of image.
+Following this, the image is thresholded to white text with black background and has Otsu's method also applied. This white text on black background helps to find contours of image.
 <p align="center"><img src="data/helpers/threshold.png" width="400"\></p>
 
 The image is then dilated using opencv in order to make contours more visible and be picked up in future step.
@@ -240,7 +240,7 @@ The individual characters of the license plate number are now the only regions o
 Each letter or number is then just appended together into a string and at the end you get the full license plate that is recognized! BOOM!
 
 ### Running License Plate Recognition on Video
-Running the license plate recognition straight on video at the same time that YOLOv4 object detections causes a few issues. Tesseract OCR is fairly expensive in terms of time complexity and slows down the processing of the video to a snails pace. It can still be accomplished by adding the `--plate` command line flag to any detect_video.py commands.
+Running the license plate recognition straight on video at the same time that YOLOv4 object detections causes a few issues. Tesseract OCR is fairly expensive in terms of time complexity and slows down the processing of the video to a snail's pace. It can still be accomplished by adding the `--plate` command line flag to any detect_video.py commands.
 
 However, I believe the best route to go is to run video detections without the plate flag and instead run them with `--crop` flag which crops the objects found on screen and saves them as new images. [See how it works here](#crop) Once the video is done processing at a higher FPS all the license plate images will be cropped and saved within [detections/crop](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/detections/crop/) folder. I have added an easy script within the repository called [license_plate_recognizer.py](https://github.com/theAIGuysCode/yolov4-custom-functions/blob/master/license_plate_recognizer.py) that you can run in order to recognize license plates. Plus this allows you to easily customize the script to further enhance any recognitions. I will be working on linking this functionality automatically in future commits to the repository.
 
@@ -259,7 +259,7 @@ Now play around with [license_plate_recognizer.py](https://github.com/theAIGuysC
 <a name="ocr"/>
 
 ## Running Tesseract OCR on any Detections
-I have also implemented a generic use of Tesseract OCR with YOLOv4. By enabling the flag `--ocr` with any detect.py image command you can search detections for text and extract what is found. Generic preprocessing is applied on the subimage that makes up the inside of the detection bounding box. However, so many lighting or color issues require advanced preprocessing so this function is by no means perfect. You will also need to install tesseract on your local machine prior to running this flag (see links and suggestions in an above section)
+I have also implemented a generic use of Tesseract OCR with YOLOv4. By enabling the flag `--ocr` with any detect.py image command you can search detections for text and extract what is found. Generic preprocessing is applied on the subimage that makes up the inside of the detection bounding box. However, so many lighting or color issues require advanced preprocessing so this function is by no means perfect. You will also need to install tesseract on your local machine prior to running this flag (see links and suggestions in above section)
 
 Example command (note this image doesn't have text so will not output anything, just meant to show how command is structured):
 ```
