@@ -6,6 +6,12 @@ import tensorflow as tf
 import pytesseract
 from core.config import cfg
 import re
+import statistics
+
+# Deskew
+import math
+from typing import Tuple, Union
+from deskew import determine_skew
 
 # If you don't have tesseract executable in your PATH, include the following:
 # pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
@@ -85,6 +91,218 @@ def recognize_plate(img, coords):
     #cv2.waitKey(0)
     return plate_num
 
+def custom_recognize_plate(img, fast_ocr, deskew):
+    def optical_image_recognition(image, char_whitelist = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", psm = 13, oem = 1):
+        config = f"-c tessedit_char_whitelist={char_whitelist} --psm {psm} --oem {oem}" 
+
+        extracted_text = pytesseract.image_to_string(image, config=config)
+
+        # clean tesseract text by removing any unwanted blank spaces
+        clean_text = re.sub('[\W_]+', '', extracted_text)
+        return clean_text
+
+    def hconcat_resize_min(im_list, interpolation=cv2.INTER_CUBIC):
+        h_min = min(im.shape[0] for im in im_list)
+        im_list_resize = [cv2.resize(im, (int(im.shape[1] * h_min / im.shape[0]), h_min), interpolation=interpolation)
+                        for im in im_list]
+        return cv2.hconcat(im_list_resize)
+
+    def find_average_and_check_contours(sorted_contours, height_org, width_org):
+        correct_contours = []
+        average_height_list = []
+
+        for cnt in sorted_contours:
+            x,y,w,h = cv2.boundingRect(cnt)
+
+            # if height of box is not a quarter of total height then skip
+            if height_org / float(h) > 6: continue
+
+            ratio = h / float(w)
+            # if height to width ratio is less than 1.4 skip
+            if ratio < 1.25: continue
+
+            area = h * w
+            # if width is not more than 25 pixels skip
+            if width_org / float(w) > 30: continue
+            # if area is less than 100 pixels skip
+            if area < 100: continue
+
+            average_height_list.append(h)
+            correct_contours.append(cnt)
+        
+        # remove smallest and largest number for a better average
+        average_height_list.remove(max(average_height_list))
+        average_height_list.remove(min(average_height_list))
+
+        # calculate letter area average
+        average_height = statistics.mean(average_height_list)
+        
+        return correct_contours, average_height
+
+    def find_check_contours(sorted_contours, height_org, width_org, image):
+        correct_contours = []
+        for idx, cnt in enumerate(sorted_contours):
+            x,y,w,h = cv2.boundingRect(cnt)
+
+            # if height of box is not a quarter of total height then skip
+            if height_org / float(h) > 6: continue
+
+            ratio = h / float(w)
+            # if height to width ratio is less than 1.25 skip
+            if ratio < 1.25: continue
+
+            area = h * w
+            # if width is not more than 30 pixels skip
+            if width_org / float(w) > 30: continue
+            # if area is less than 100 pixels skip
+            if area < 100: continue
+            
+            value_index = [cnt, idx]
+            correct_contours.append(value_index)
+
+        return correct_contours
+
+    def calculate_average_height_of_letter(contour_list):
+        average_height_list = contour_list
+
+        # remove smallest and largest number for a better average
+        average_height_list.remove(max(average_height_list))
+        average_height_list.remove(min(average_height_list))
+
+        # calculate letter area average
+        return statistics.mean(average_height_list)
+
+    def most_frequent(list):
+        counter = 0
+        num = list[0]
+        
+        for i in list:
+            curr_frequency = list.count(i)
+            if(curr_frequency> counter):
+                counter = curr_frequency
+                num = i
+    
+        return num
+
+    def rotate(image: np.ndarray, angle: float, background: Union[int, Tuple[int, int, int]]) -> np.ndarray:
+        old_width, old_height = image.shape[:2]
+        angle_radian = math.radians(angle)
+        width = abs(np.sin(angle_radian) * old_height) + abs(np.cos(angle_radian) * old_width)
+        height = abs(np.sin(angle_radian) * old_width) + abs(np.cos(angle_radian) * old_height)
+
+        image_center = tuple(np.array(image.shape[1::-1]) / 2)
+        rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+        rot_mat[1, 2] += (width - old_width) / 2
+        rot_mat[0, 2] += (height - old_height) / 2
+        return cv2.warpAffine(image, rot_mat, (int(round(height)), int(round(width))), borderValue=background)
+
+    # Setup parameters
+    enable_fast = fast_ocr
+    enable_deskew = deskew
+    plate_num = ""
+    offset_size_letter = 0.1 # Maximum offset of the average letter
+
+    #region Filters
+    # Grayscale image
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    # Deskew image
+    if enable_deskew:
+        angle = determine_skew(gray)
+        rotated = rotate(gray, angle, (0, 0, 0))
+    else:
+        rotated = gray
+
+    # Resize image to three times as large as original for better readability
+    resize = cv2.resize(rotated, None, fx = 3, fy = 3, interpolation = cv2.INTER_CUBIC)
+
+    # threshold the image using Otsus method to preprocess for tesseract
+    ret, thresh = cv2.threshold(resize, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+
+    # create rectangular kernel for dilation
+    rect_kern = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+
+    # apply dilation to make regions more clear
+    dilation = cv2.dilate(thresh, rect_kern, iterations = 1)
+    #endregion
+
+    #region Contours
+    # find contours of regions of interest within license plate
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #endregion
+
+    # create copy of gray image
+    copy_orginal = resize.copy()
+
+    # Help to calculate if a contours is valid, this gives the height and width of the orginal image
+    height, width = copy_orginal.shape
+
+    # Returns the correct contours and the average height of a letter
+    correct_contours = find_check_contours(contours, height, width, resize.copy())
+
+    # Get Plate Level
+    
+    list_plate_level = []
+    for cnt, index in correct_contours:
+        list_plate_level.append(hierarchy[0,index,3])
+    plate_level = most_frequent(list_plate_level)
+
+    print(f"PlateLv {plate_level}")
+
+    correct_contours_no_child = []
+    correct_contours_height_list = []
+    for cnt, index in correct_contours:
+        if plate_level == hierarchy[0,index,3]:
+            x,y,w,h = cv2.boundingRect(cnt)
+            correct_contours_no_child.append(cnt)
+            correct_contours_height_list.append(h)
+
+    # Calculate the average height of a letter to increase the accuracy
+    average_height = calculate_average_height_of_letter(correct_contours_height_list)
+
+    # sort contours left-to-right
+    sorted_correct_contours = sorted(correct_contours_no_child, key=lambda ctr: cv2.boundingRect(ctr)[0])
+
+    images = []
+    for cnt in sorted_correct_contours:
+        x,y,w,h = cv2.boundingRect(cnt)
+
+        if h/average_height > (1 + offset_size_letter) or h/average_height < (1 - offset_size_letter):
+            continue
+            
+        # draw the rectangle
+        cv2.rectangle(copy_orginal, (x,y), (x+w, y+h), (0,255,0),2)
+        roi = thresh[y-5:y+h+5, x-5:x+w+5]
+        roi = cv2.bitwise_not(roi)
+        roi = cv2.medianBlur(roi, 5)
+        images.append(roi)
+
+    if enable_fast:
+        # Concatenate all the valid images horizontally to save time  
+        con_h_valid_images = hconcat_resize_min(images)
+        # Try to read what the license plate is
+        try:
+            text = optical_image_recognition(con_h_valid_images, psm=7)
+            # clean tesseract text by removing any unwanted blank spaces
+            clean_text = re.sub('[\W_]+', '', text)
+            plate_num += clean_text
+        except: 
+            text = None
+    else:
+        for image in images:
+            # Try to read what the license plate is
+            try:
+                text = optical_image_recognition(image)
+                # clean tesseract text by removing any unwanted blank spaces
+                clean_text = re.sub('[\W_]+', '', text)
+                plate_num += clean_text
+            except: 
+                text = None
+
+    if plate_num != None:
+        print("License Plate #: ", plate_num)
+    return plate_num
+
 def load_freeze_layer(model='yolov4', tiny=False):
     if tiny:
         if model == 'yolov3':
@@ -151,7 +369,6 @@ def load_weights(model, weights_file, model_name='yolov4', is_tiny=False):
     # assert len(wf.read()) == 0, 'failed to read all data'
     wf.close()
 
-
 def read_class_names(class_file_name):
     names = {}
     with open(class_file_name, 'r') as data:
@@ -213,7 +430,18 @@ def format_boxes(bboxes, image_height, image_width):
         box[0], box[1], box[2], box[3] = xmin, ymin, xmax, ymax
     return bboxes
 
-def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=True, allowed_classes=list(read_class_names(cfg.YOLO.CLASSES).values()), read_plate = False):
+def extract_and_correct_license_plate(img, area):
+    license_plate = None
+    boxes, scores, classes, num_objects = area
+    for i in range(num_objects):
+        # separate coordinates from box
+        xmin, ymin, xmax, ymax = boxes[i]
+        # get the subimage that makes up the bounded region and take an additional 5 pixels on each side
+        license_plate = img[int(ymin)-5:int(ymax)+5, int(xmin)-5:int(xmax)+5]
+    license_plate = cv2.cvtColor(np.array(license_plate), cv2.COLOR_BGR2RGB)
+    return license_plate
+
+def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=True, allowed_classes=list(read_class_names(cfg.YOLO.CLASSES).values()), read_plate = False, custom_reco = False, fast_ocr = False):
     classes = read_class_names(cfg.YOLO.CLASSES)
     num_classes = len(classes)
     image_h, image_w, _ = image.shape
@@ -238,7 +466,12 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
         else:
             if read_plate:
                 height_ratio = int(image_h / 25)
-                plate_number = recognize_plate(image, coor)
+                plate_number = None
+                if custom_reco:
+                    license_plate = extract_and_correct_license_plate(image, bboxes)
+                    plate_number = custom_recognize_plate(license_plate, fast_ocr)
+                else: 
+                    plate_number = recognize_plate(image, coor)
                 if plate_number != None:
                     cv2.putText(image, plate_number, (int(coor[0]), int(coor[1]-height_ratio)), 
                             cv2.FONT_HERSHEY_SIMPLEX, 1.25, (255,255,0), 2)

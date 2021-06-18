@@ -57,7 +57,25 @@ def crop_objects(img, data, path, allowed_classes):
             cv2.imwrite(img_path, cropped_img)
         else:
             continue
-        
+
+def custom_crop_and_return_objects(img, data, allowed_classes):
+    boxes, scores, classes, num_objects = data
+    class_names = read_class_names(cfg.YOLO.CLASSES)
+    #create dictionary to hold count of objects for image name
+    counts = dict()
+    for i in range(num_objects):
+        # get count of class for part of image name
+        class_index = int(classes[i])
+        class_name = class_names[class_index]
+        if class_name in allowed_classes:
+            counts[class_name] = counts.get(class_name, 0) + 1
+            # get box coords
+            xmin, ymin, xmax, ymax = boxes[i]
+            # crop detection from image (take an additional 5 pixels around all edges)
+            return img[int(ymin)-5:int(ymax)+5, int(xmin)-5:int(xmax)+5]
+        else:
+            continue
+
 # function to run general Tesseract OCR on any detections 
 def ocr(img, data):
     boxes, scores, classes, num_objects = data
