@@ -1,0 +1,13 @@
+data/custom.weights
+data/classes/custom.names
+core/__pycache__/config.cpython-38.pyc
+core/__pycache__/utils.cpython-38.pyc
+core/__pycache__/yolov4.cpython-38.pyc
+detections/detection1.png
+core/__pycache__/functions.cpython-38.pyc
+core/__pycache__/common.cpython-38.pyc
+core/__pycache__/backbone.cpython-38.pyc
+checkpoints/yolov4-416/variables/variables.index
+checkpoints/yolov4-416/variables/variables.data-00000-of-00001
+checkpoints/yolov4-416/saved_model.pb
+checkpoints/yolov4-416.tflite
