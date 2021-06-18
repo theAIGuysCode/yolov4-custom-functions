@@ -1,13 +1,16 @@
+
 import os
 # comment out below line to enable tensorflow outputs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
+
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from absl import app, flags, logging
 from absl.flags import FLAGS
 import core.utils as utils
+
 from core.yolov4 import filter_boxes
 from core.functions import *
 from tensorflow.python.saved_model import tag_constants
@@ -16,6 +19,7 @@ import cv2
 import numpy as np
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
+import time
 
 flags.DEFINE_string('framework', 'tf', '(tf, tflite, trt')
 flags.DEFINE_string('weights', './checkpoints/yolov4-416',
@@ -33,8 +37,14 @@ flags.DEFINE_boolean('info', False, 'print info on detections')
 flags.DEFINE_boolean('crop', False, 'crop detections from images')
 flags.DEFINE_boolean('ocr', False, 'perform generic OCR on detection regions')
 flags.DEFINE_boolean('plate', False, 'perform license plate recognition')
+flags.DEFINE_boolean('custom', False, 'perform custom license plate recognition')
+flags.DEFINE_boolean('fast', False, 'perform less accurate but fast ocr')
+
 
 def main(_argv):
+    # Setup Timing
+    start_time = time.time()
+
     config = ConfigProto()
     config.gpu_options.allow_growth = True
     session = InteractiveSession(config=config)
@@ -47,6 +57,9 @@ def main(_argv):
             interpreter = tf.lite.Interpreter(model_path=FLAGS.weights)
     else:
             saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
+
+    # Print the model load time
+    print("--- Modal Load Time: %s seconds ---" % (time.time() - start_time))
 
     # loop through images in list and run Yolov4 model on each
     for count, image_path in enumerate(images, 1):
@@ -131,9 +144,9 @@ def main(_argv):
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes, read_plate = FLAGS.plate)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, counted_classes, allowed_classes=allowed_classes, read_plate = FLAGS.plate, custom_reco = FLAGS.custom, fast_ocr = FLAGS.fast)
         else:
-            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, allowed_classes=allowed_classes, read_plate = FLAGS.plate)
+            image = utils.draw_bbox(original_image, pred_bbox, FLAGS.info, allowed_classes=allowed_classes, read_plate = FLAGS.plate, custom_reco = FLAGS.custom, fast_ocr = FLAGS.fast)
         
         image = Image.fromarray(image.astype(np.uint8))
         if not FLAGS.dont_show:
@@ -141,8 +154,14 @@ def main(_argv):
         image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
         cv2.imwrite(FLAGS.output + 'detection' + str(count) + '.png', image)
 
+    
+    # Print the execution time
+    print("--- Total Execution Time: %s seconds ---" % (time.time() - start_time))
+
 if __name__ == '__main__':
     try:
+        # Run main script
         app.run(main)
+
     except SystemExit:
         pass
