@@ -1,0 +1,8 @@
+*.weights
+*.jpg
+*.jpeg
+*.mpg4
+*.mpeg
+
+/checkpoints
+

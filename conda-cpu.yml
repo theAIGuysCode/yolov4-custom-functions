@@ -1,16 +1,19 @@
 name: yolov4-cpu
 
 dependencies:
-  - python==3.7
+  - python==3.9
   - pip
   - matplotlib
   - opencv
   - pip:
-    - opencv-python==4.1.1.26
+    - opencv-python
     - lxml
     - tqdm
-    - tensorflow==2.3.0rc0
+    - tensorflow
     - absl-py
     - easydict
     - pillow
     - pytesseract
+    - streamlit
+    
+# 4.5.1.48, 4.5.3.56, 4.5.4.58, 4.5.4.60, 4.5.5.62, 4.5.5.64    
